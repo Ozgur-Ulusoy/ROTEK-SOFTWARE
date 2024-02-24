@@ -136,7 +136,7 @@ class _ControlPanelViewState extends State<ControlPanelView> {
                           },
                           child: Container(
                             width: context.width * 0.3,
-                            height: context.height * 0.05,
+                            height: context.height * 0.065,
                             decoration: BoxDecoration(
                               color: AppColors.red,
                               borderRadius: BorderRadius.circular(10),

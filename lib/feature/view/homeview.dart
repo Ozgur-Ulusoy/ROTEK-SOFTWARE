@@ -61,26 +61,27 @@ class _HomeViewState extends State<HomeView> with CustomShowDialogMixin {
                             MouseRegion(
                               cursor: SystemMouseCursors.click,
                               child: GestureDetector(
-                                onTap: () {
+                                onTap: () async {
+                                  await setPorts();
                                   //! PROD
-                                  // if (context
-                                  //     .read<MainProvider>()
-                                  //     .availablePorts
-                                  //     .isEmpty) {
-                                  //   showCustomDialog(
-                                  //     context: context,
-                                  //     title: "Hata !",
-                                  //     message: "Bağlantı noktası bulunamadı.",
-                                  //     positiveButtonText: "Kapat",
-                                  //   );
-                                  // } else {
-                                  //   Navigator.pushNamed(
-                                  //       context, "/control_panel");
-                                  // }
+                                  if (context
+                                      .read<MainProvider>()
+                                      .availablePorts
+                                      .isEmpty) {
+                                    showCustomDialog(
+                                      context: context,
+                                      title: "Hata !",
+                                      message: "Bağlantı noktası bulunamadı.",
+                                      positiveButtonText: "Kapat",
+                                    );
+                                  } else {
+                                    Navigator.pushNamed(
+                                        context, "/control_panel");
+                                  }
 
                                   //! DEV
-                                  Navigator.pushNamed(
-                                      context, "/control_panel");
+                                  // Navigator.pushNamed(
+                                  //     context, "/control_panel");
                                 },
                                 child: const Text(
                                   "Bağlantıyı Başlat",
@@ -114,9 +115,7 @@ class _HomeViewState extends State<HomeView> with CustomShowDialogMixin {
                     )
                   ],
                 ),
-                const Spacer(
-                  flex: 1,
-                ),
+                const Spacer(flex: 2),
                 Padding(
                   padding: const EdgeInsets.all(8.0),
                   child: Row(

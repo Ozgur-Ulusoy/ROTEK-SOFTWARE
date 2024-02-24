@@ -47,7 +47,9 @@ class _ReadDatasViewState extends State<ReadDatasView> {
                             return ListTile(
                               title: Text(
                                 // value.fileNames[index] but after datas/
-                                value.fileNames[index].substring(6),
+                                value.fileNames[
+                                        value.fileNames.length - index - 1]
+                                    .substring(6),
                               ),
                               onTap: () {
                                 // OPEN CSV READER
@@ -55,7 +57,8 @@ class _ReadDatasViewState extends State<ReadDatasView> {
                                   context,
                                   MaterialPageRoute(
                                     builder: (context) => CsvReaderView(
-                                      csvPath: value.fileNames[index],
+                                      csvPath: value.fileNames[
+                                          value.fileNames.length - index - 1],
                                     ),
                                   ),
                                 );
