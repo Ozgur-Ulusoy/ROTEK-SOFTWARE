@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:rotak_arac/core/providers/control_panel_provider.dart';
 import 'package:rotak_arac/core/providers/main_provider.dart';
 import 'package:rotak_arac/feature/view/control_panel_view.dart';
 import 'package:rotak_arac/feature/view/homeview.dart';
@@ -12,7 +13,12 @@ class BaseApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MultiProvider(
       providers: [
-        ChangeNotifierProvider(create: (_) => MainProvider()),
+        ChangeNotifierProvider(
+          create: (_) => MainProvider(),
+        ),
+        ChangeNotifierProvider(
+          create: (_) => ControlPanelProvider(),
+        ),
       ],
       child: MaterialApp(
         title: "Rotak Araç Takip Sistemi",

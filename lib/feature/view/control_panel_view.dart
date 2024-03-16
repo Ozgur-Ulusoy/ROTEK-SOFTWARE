@@ -5,6 +5,7 @@ import 'package:flutter_libserialport/flutter_libserialport.dart';
 import 'package:provider/provider.dart';
 import 'package:rotak_arac/core/Constants/colors.dart';
 import 'package:rotak_arac/core/extensions/contextExtension.dart';
+import 'package:rotak_arac/core/providers/control_panel_provider.dart';
 import 'package:rotak_arac/core/providers/main_provider.dart';
 import 'package:rotak_arac/feature/widgets/control_panel_field.dart';
 
@@ -17,6 +18,7 @@ class ControlPanelView extends StatefulWidget {
 
 class _ControlPanelViewState extends State<ControlPanelView> {
   File? file;
+  SerialPort? port;
   IOSink? sink;
   @override
   Widget build(BuildContext context) {
@@ -70,114 +72,122 @@ class _ControlPanelViewState extends State<ControlPanelView> {
           SizedBox(
             width: context.width * 0.05,
           ),
-          Column(
-            children: [
-              const Spacer(),
-              Row(
-                children: [
-                  SizedBox(width: context.width * 0.2),
-                  Column(
-                    children: [
-                      ControlPanelFieldWidget(
-                          text: "Zaman:",
-                          color: AppColors.deepBlue,
-                          textColor: Colors.white),
-                      SizedBox(
-                        height: context.height * 0.01,
-                      ),
-                      ControlPanelFieldWidget(
-                          text: "Hız:",
-                          color: AppColors.lightBlue,
-                          textColor: Colors.black),
-                    ],
-                  ),
-                ],
-              ),
-              const Spacer(),
-              Row(
-                children: [
-                  Column(
-                    children: [
-                      ControlPanelFieldWidget(
-                          text: "Batarya Sıcaklığı:",
-                          color: AppColors.deepBlue,
-                          textColor: Colors.white),
-                      SizedBox(
-                        height: context.height * 0.01,
-                      ),
-                      ControlPanelFieldWidget(
-                          text: "Batarya Gerilimi:",
-                          color: AppColors.lightBlue,
-                          textColor: Colors.black),
-                    ],
-                  ),
-                  SizedBox(width: context.width * 0.2),
-                ],
-              ),
-              const Spacer(),
-              Row(
-                children: [
-                  SizedBox(width: context.width * 0.2),
-                  Column(
-                    children: [
-                      ControlPanelFieldWidget(
-                          text: "Kalan Enerji:",
-                          color: AppColors.deepBlue,
-                          textColor: Colors.white),
-                      SizedBox(
-                        height: context.height * 0.01,
-                      ),
-                      MouseRegion(
-                        cursor: SystemMouseCursors.click,
-                        child: GestureDetector(
-                          onTap: () async {
-                            await sink?.close();
-                            Navigator.pop(context);
-                          },
-                          child: Container(
-                            width: context.width * 0.3,
-                            height: context.height * 0.065,
-                            decoration: BoxDecoration(
-                              color: AppColors.red,
-                              borderRadius: BorderRadius.circular(10),
-                              border: Border.all(color: Colors.white, width: 2),
-                            ),
-                            child: Padding(
-                              padding: const EdgeInsets.only(left: 8.0),
-                              child: Row(
-                                mainAxisAlignment: MainAxisAlignment.center,
-                                children: [
-                                  const Center(
-                                    child: Text(
-                                      "Bağlantıyı Kes",
-                                      style: TextStyle(
-                                        color: Colors.white,
-                                        fontSize: 20,
-                                        fontWeight: FontWeight.bold,
+          Consumer<ControlPanelProvider>(
+              builder: (context, controlPanelProvider, child) {
+            return Column(
+              children: [
+                const Spacer(),
+                Row(
+                  children: [
+                    SizedBox(width: context.width * 0.2),
+                    Column(
+                      children: [
+                        ControlPanelFieldWidget(
+                            text: "Zaman: ${controlPanelProvider.zamanDegeri}",
+                            color: AppColors.deepBlue,
+                            textColor: Colors.white),
+                        SizedBox(
+                          height: context.height * 0.01,
+                        ),
+                        ControlPanelFieldWidget(
+                            text: "Hız: ${controlPanelProvider.hizDegeri}",
+                            color: AppColors.lightBlue,
+                            textColor: Colors.black),
+                      ],
+                    ),
+                  ],
+                ),
+                const Spacer(),
+                Row(
+                  children: [
+                    Column(
+                      children: [
+                        ControlPanelFieldWidget(
+                            text:
+                                "Batarya Sıcaklığı: ${controlPanelProvider.bataryaSicakligi}",
+                            color: AppColors.deepBlue,
+                            textColor: Colors.white),
+                        SizedBox(
+                          height: context.height * 0.01,
+                        ),
+                        ControlPanelFieldWidget(
+                            text:
+                                "Batarya Gerilimi: ${controlPanelProvider.bataryaGerilimi}",
+                            color: AppColors.lightBlue,
+                            textColor: Colors.black),
+                      ],
+                    ),
+                    SizedBox(width: context.width * 0.2),
+                  ],
+                ),
+                const Spacer(),
+                Row(
+                  children: [
+                    SizedBox(width: context.width * 0.2),
+                    Column(
+                      children: [
+                        ControlPanelFieldWidget(
+                            text:
+                                "Kalan Enerji: ${controlPanelProvider.kalanEnerji}",
+                            color: AppColors.deepBlue,
+                            textColor: Colors.white),
+                        SizedBox(
+                          height: context.height * 0.01,
+                        ),
+                        MouseRegion(
+                          cursor: SystemMouseCursors.click,
+                          child: GestureDetector(
+                            onTap: () async {
+                              await sink?.close();
+                              port?.close();
+                              Navigator.pop(context);
+                            },
+                            child: Container(
+                              width: context.width * 0.3,
+                              height: context.height * 0.065,
+                              decoration: BoxDecoration(
+                                color: AppColors.red,
+                                borderRadius: BorderRadius.circular(10),
+                                border:
+                                    Border.all(color: Colors.white, width: 2),
+                              ),
+                              child: Padding(
+                                padding: const EdgeInsets.only(left: 8.0),
+                                child: Row(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: [
+                                    const Center(
+                                      child: Text(
+                                        "Bağlantıyı Kes",
+                                        style: TextStyle(
+                                          color: Colors.white,
+                                          fontSize: 20,
+                                          fontWeight: FontWeight.bold,
+                                        ),
+                                        textAlign: TextAlign.start,
                                       ),
-                                      textAlign: TextAlign.start,
                                     ),
-                                  ),
-                                  SizedBox(
-                                    width: context.width * 0.005,
-                                  ),
-                                  const Icon(
-                                    Icons.error_outline,
-                                    color: Colors.white,
-                                  ),
-                                ],
+                                    SizedBox(
+                                      width: context.width * 0.005,
+                                    ),
+                                    const Icon(
+                                      Icons.error_outline,
+                                      color: Colors.white,
+                                    ),
+                                  ],
+                                ),
                               ),
                             ),
                           ),
-                        ),
-                      )
-                    ],
-                  ),
-                ],
-              ),
-              const Spacer(),
-            ],
-          )
+                        )
+                      ],
+                    ),
+                  ],
+                ),
+                const Spacer(),
+              ],
+            );
+          })
         ],
       ),
     );
@@ -190,6 +200,8 @@ class _ControlPanelViewState extends State<ControlPanelView> {
     // after first build
     WidgetsBinding.instance.addPostFrameCallback((_) {
       portReadingStream();
+      // reset all values
+      context.read<ControlPanelProvider>().reset();
     });
   }
 
@@ -197,9 +209,15 @@ class _ControlPanelViewState extends State<ControlPanelView> {
     Provider.of<MainProvider>(context, listen: false)
         .setAvailablePorts(SerialPort.availablePorts);
 
-    // CREATE A CSV FILE WITH NAME DATETIME AND WRITE DATA TO IT
-    String datetime = DateTime.now().toString();
-    datetime = datetime.replaceAll(':', '-');
+    //* CREATE A CSV FILE WITH NAME DATETIME AND WRITE DATA TO IT
+    // String datetime = DateTime.now().toString();
+    // datetime = datetime.replaceAll(':', '-');
+
+    // new
+    DateTime now = DateTime.now();
+    String datetime =
+        "${now.year}-${now.month.toString().padLeft(2, '0')}-${now.day.toString().padLeft(2, '0')} ${now.hour.toString().padLeft(2, '0')}-${now.minute.toString().padLeft(2, '0')}-${now.second.toString().padLeft(2, '0')}";
+    print(datetime);
     try {
       file = await File('datas/$datetime.csv').create().then((value) async {
         sink = value.openWrite();
@@ -219,10 +237,12 @@ class _ControlPanelViewState extends State<ControlPanelView> {
       print(context.read<MainProvider>().availablePorts.first);
     }
 
-    SerialPort port = SerialPort('COM4');
+    port = SerialPort(context.read<MainProvider>().availablePorts.first);
 
-    if (port.isOpen) {
-      port.close();
+    if (port != null) {
+      if (port!.isOpen) {
+        port!.close();
+      }
     }
 
     final configu = SerialPortConfig();
@@ -231,20 +251,30 @@ class _ControlPanelViewState extends State<ControlPanelView> {
         SerialPortParity.none;
     configu.stopBits = 1;
     configu.bits = 8;
-    port.config = configu;
-    SerialPortReader reader = SerialPortReader(port, timeout: 500);
+    port?.config = configu;
+    SerialPortReader reader = SerialPortReader(port!, timeout: 500);
 
     try {
-      port.openReadWrite();
+      port!.openReadWrite();
       reader.stream.listen((data) {
         print('received : $data');
         print(String.fromCharCodes(data));
+
+        // split data with ; then set values
+        List<String> datas = String.fromCharCodes(data).split(';');
+
+        context.read<ControlPanelProvider>().setHizDegeri(datas[0]);
+        context.read<ControlPanelProvider>().setZamanDegeri(datas[1]);
+        context.read<ControlPanelProvider>().setBataryaSicakligi(datas[2]);
+        context.read<ControlPanelProvider>().setBataryaGerilimi(datas[3]);
+        context.read<ControlPanelProvider>().setKalanEnerji(datas[4]);
+
         //! DATADAN VERİLERİ ÇEK VE İŞLE
         sink?.write('${String.fromCharCodes(data)}\n');
         sink?.flush();
       });
     } on SerialPortError catch (_, err) {
-      if (port.isOpen) {
+      if (port!.isOpen) {
         // port.close();
         print('serial port error');
       }
