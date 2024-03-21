@@ -26,7 +26,7 @@ class _ControlPanelViewState extends State<ControlPanelView> {
       backgroundColor: Colors.black87,
       body: Row(
         children: [
-          //* LEFT SIDE - MAP ETC
+          //* LEFT SIDE - MAP
           Column(
             children: [
               SizedBox(
@@ -39,7 +39,7 @@ class _ControlPanelViewState extends State<ControlPanelView> {
                     Padding(
                       padding: const EdgeInsets.only(left: 50, top: 50),
                       child: Container(
-                        color: Colors.white,
+                        color: Colors.black,
                         width: context.width * 0.35,
                         height: context.height,
                       ),
@@ -72,6 +72,7 @@ class _ControlPanelViewState extends State<ControlPanelView> {
           SizedBox(
             width: context.width * 0.05,
           ),
+          //* DATAS
           Consumer<ControlPanelProvider>(
               builder: (context, controlPanelProvider, child) {
             return Column(
@@ -90,7 +91,7 @@ class _ControlPanelViewState extends State<ControlPanelView> {
                           height: context.height * 0.01,
                         ),
                         ControlPanelFieldWidget(
-                            text: "Hız: ${controlPanelProvider.hizDegeri}",
+                            text: "Hız: ${controlPanelProvider.hizDegeri} Km/s",
                             color: AppColors.lightBlue,
                             textColor: Colors.black),
                       ],
@@ -104,7 +105,7 @@ class _ControlPanelViewState extends State<ControlPanelView> {
                       children: [
                         ControlPanelFieldWidget(
                             text:
-                                "Batarya Sıcaklığı: ${controlPanelProvider.bataryaSicakligi}",
+                                "Batarya Sıcaklığı: ${controlPanelProvider.bataryaSicakligi} °C",
                             color: AppColors.deepBlue,
                             textColor: Colors.white),
                         SizedBox(
@@ -112,7 +113,7 @@ class _ControlPanelViewState extends State<ControlPanelView> {
                         ),
                         ControlPanelFieldWidget(
                             text:
-                                "Batarya Gerilimi: ${controlPanelProvider.bataryaGerilimi}",
+                                "Batarya Gerilimi: ${controlPanelProvider.bataryaGerilimi} V",
                             color: AppColors.lightBlue,
                             textColor: Colors.black),
                       ],
@@ -128,7 +129,7 @@ class _ControlPanelViewState extends State<ControlPanelView> {
                       children: [
                         ControlPanelFieldWidget(
                             text:
-                                "Kalan Enerji: ${controlPanelProvider.kalanEnerji}",
+                                "Kalan Enerji: ${controlPanelProvider.kalanEnerji} kWh",
                             color: AppColors.deepBlue,
                             textColor: Colors.white),
                         SizedBox(
@@ -221,7 +222,8 @@ class _ControlPanelViewState extends State<ControlPanelView> {
     try {
       file = await File('datas/$datetime.csv').create().then((value) async {
         sink = value.openWrite();
-        sink?.write('datetime,temperature,humidity\n');
+        sink?.write(
+            'Zaman, Hız, Batarya Sıcaklığı, Batarya Gerilimi, Kalan Enerji \n');
         await sink?.flush();
         // await sink.close();
         return null;
@@ -256,18 +258,24 @@ class _ControlPanelViewState extends State<ControlPanelView> {
 
     try {
       port!.openReadWrite();
+      print("açıldı");
       reader.stream.listen((data) {
         print('received : $data');
         print(String.fromCharCodes(data));
 
         // split data with ; then set values
-        List<String> datas = String.fromCharCodes(data).split(';');
+        try {
+          List<String> datas = String.fromCharCodes(data).split(';');
 
-        context.read<ControlPanelProvider>().setHizDegeri(datas[0]);
-        context.read<ControlPanelProvider>().setZamanDegeri(datas[1]);
-        context.read<ControlPanelProvider>().setBataryaSicakligi(datas[2]);
-        context.read<ControlPanelProvider>().setBataryaGerilimi(datas[3]);
-        context.read<ControlPanelProvider>().setKalanEnerji(datas[4]);
+          context.read<ControlPanelProvider>().setZamanDegeri(datas[0]);
+          context.read<ControlPanelProvider>().setHizDegeri(datas[1]);
+          context.read<ControlPanelProvider>().setBataryaSicakligi(datas[2]);
+          context.read<ControlPanelProvider>().setBataryaGerilimi(datas[3]);
+          context.read<ControlPanelProvider>().setKalanEnerji(datas[4]);
+        } on Exception catch (e) {
+          // TODO
+          print(e);
+        }
 
         //! DATADAN VERİLERİ ÇEK VE İŞLE
         sink?.write('${String.fromCharCodes(data)}\n');

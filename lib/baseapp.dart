@@ -21,7 +21,7 @@ class BaseApp extends StatelessWidget {
         ),
       ],
       child: MaterialApp(
-        title: "Rotak Araç Takip Sistemi",
+        title: "Rotek Araç Takip Sistemi",
         debugShowCheckedModeBanner: false,
         routes: {
           '/home': (context) => const HomeView(),

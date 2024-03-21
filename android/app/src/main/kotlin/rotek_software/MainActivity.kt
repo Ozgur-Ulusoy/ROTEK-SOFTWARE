@@ -1,4 +1,4 @@
-package com.example.rotak_arac
+package rotek_software
 
 import io.flutter.embedding.android.FlutterActivity
 
